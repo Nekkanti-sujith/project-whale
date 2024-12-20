@@ -5,8 +5,8 @@ from preprocess import get_data_generators
 model = tf.keras.models.load_model('models/whale_model.h5')
 
 # Define paths
-train_dir = "data/train"
-validation_dir = "data/validation"
+train_dir = "Dataset/task-1/data/train"
+validation_dir = "Dataset/task-1/data/validation"
 
 # Get data generators
 _, validation_generator = get_data_generators(train_dir, validation_dir)

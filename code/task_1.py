@@ -1,54 +1,53 @@
+from models.train import train_model  # Import the train_model function from train.py
+from models.preProcess import get_data_generators  # Import the get_data_generators function from preprocess.py
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
-# Image preprocessing
-train_dir = "data/train"
-validation_dir = "data/validation"
+# Define paths
+train_dir = "Dataset/task-1/data/train"
+validation_dir = "Dataset/task-1/data/validation"
 
-train_datagen = ImageDataGenerator(
-    rescale=1.0/255, 
-    rotation_range=40,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True
-)
+# Get data generators
+train_generator, validation_generator = get_data_generators(train_dir, validation_dir)
 
-validation_datagen = ImageDataGenerator(rescale=1.0/255)
+# Train the model
+train_model(train_generator, validation_generator)  # Train the model using the generators
 
-train_generator = train_datagen.flow_from_directory(
-    train_dir,
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='binary'
-)
+# -----------------------------------------------------------
+# Option 1: Evaluate the model on the validation set
+# -----------------------------------------------------------
+# def evaluate_model():
+#     # Load the trained model
+#     model = tf.keras.models.load_model('models/whale_model.h5')
 
-validation_generator = validation_datagen.flow_from_directory(
-    validation_dir,
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='binary'
-)
+#     # Evaluate the model
+#     loss, accuracy = model.evaluate(validation_generator)
+#     print(f"Validation Accuracy: {accuracy:.2f}")
+#     print(f"Validation Loss: {loss:.2f}")
 
-# Define the model
-model = Sequential([
-    Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)),
-    MaxPooling2D(2, 2),
-    Conv2D(64, (3, 3), activation='relu'),
-    MaxPooling2D(2, 2),
-    Conv2D(128, (3, 3), activation='relu'),
-    MaxPooling2D(2, 2),
-    Flatten(),
-    Dense(512, activation='relu'),
-    Dropout(0.5),
-    Dense(1, activation='sigmoid')  # For binary classification
-])
+# Uncomment the line below to run evaluation
+# evaluate_model()
 
-model.compile(
-    loss='binary_crossentropy',
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-    metrics=['accuracy']
-)
+# -----------------------------------------------------------
+# Option 2: Make predictions on new images (Inference)
+# -----------------------------------------------------------
+# def predict_image(img_path):
+#     # Load the trained model
+#     model = tf.keras.models.load_model('models/whale_model.h5')
+
+#     # Load and preprocess image
+#     img = image.load_img(img_path, target_size=(150, 150))
+#     img_array = image.img_to_array(img) / 255.0
+#     img_array = np.expand_dims(img_array, axis=0)
+
+#     # Predict
+#     prediction = model.predict(img_array)
+#     if prediction[0] > 0.5:
+#         return "Whale detected!"
+#     else:
+#         return "No whale detected."
+
+# Uncomment the line below to run inference (replace 'path/to/test_image.jpg' with your image path)
+# result = predict_image('path/to/test_image.jpg')
+# print(result)

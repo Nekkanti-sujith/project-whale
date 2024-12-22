@@ -3,8 +3,9 @@ from models.preProcess import get_data_generators  # Import the get_data_generat
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
+from tensorflow.keras.models import load_model
 
-# Define paths
+# # Define paths
 train_dir = "Dataset/task-1/data/train"
 validation_dir = "Dataset/task-1/data/validation"
 
@@ -17,17 +18,18 @@ train_model(train_generator, validation_generator)  # Train the model using the 
 # -----------------------------------------------------------
 # Option 1: Evaluate the model on the validation set
 # -----------------------------------------------------------
-# def evaluate_model():
-#     # Load the trained model
-#     model = tf.keras.models.load_model('models/whale_model.h5')
+def evaluate_model():
+    # Load the trained model
+    model = load_model('models/whale_model.h5')
+    # model = tf.keras.models.load_model('models/whale_model.h5')
 
-#     # Evaluate the model
-#     loss, accuracy = model.evaluate(validation_generator)
-#     print(f"Validation Accuracy: {accuracy:.2f}")
-#     print(f"Validation Loss: {loss:.2f}")
+    # Evaluate the model
+    loss, accuracy = model.evaluate(validation_generator)
+    print(f"Validation Accuracy: {accuracy:.2f}")
+    print(f"Validation Loss: {loss:.2f}")
 
-# Uncomment the line below to run evaluation
-# evaluate_model()
+#Uncomment the line below to run evaluation
+evaluate_model()
 
 # -----------------------------------------------------------
 # Option 2: Make predictions on new images (Inference)

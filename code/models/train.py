@@ -1,7 +1,41 @@
 import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
-from preProcess import get_data_generators
+from tensorflow.keras.optimizers import Adam
+
+# Define paths to training and validation directories
+train_dir = "Dataset/task-1/data/train"
+validation_dir = "Dataset/task-1/data/validation"
+
+# Image data preprocessing
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+
+validation_datagen = ImageDataGenerator(rescale=1./255)
+
+# Load images from the directories
+train_generator = train_datagen.flow_from_directory(
+    train_dir,
+    target_size=(150, 150),  # Adjust to match your image dimensions
+    batch_size=32,
+    class_mode='binary'  # As we have two classes
+)
+
+validation_generator = validation_datagen.flow_from_directory(
+    validation_dir,
+    target_size=(150, 150),
+    batch_size=32,
+    class_mode='binary'
+)
 
 # Define the model architecture
 def create_model():
@@ -15,11 +49,11 @@ def create_model():
         Flatten(),
         Dense(512, activation='relu'),
         Dropout(0.5),
-        Dense(1, activation='sigmoid')
+        Dense(1, activation='sigmoid')  # For binary classification
     ])
     model.compile(
         loss='binary_crossentropy',
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        optimizer=Adam(learning_rate=0.001),
         metrics=['accuracy']
     )
     return model
@@ -37,5 +71,8 @@ def train_model(train_generator, validation_generator, epochs=20):
     )
 
     # Save the model
-    model.save('models/whale_model.h5')
-    print("Model saved as 'models/whale_model.h5'")
+    model.save('whale_model.h5')
+    print("Model saved as 'whale_model.h5'")
+
+# Start training
+train_model(train_generator, validation_generator)

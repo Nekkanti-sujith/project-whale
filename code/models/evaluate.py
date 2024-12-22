@@ -1,5 +1,5 @@
 import tensorflow as tf
-from preprocess import get_data_generators
+from preProcess import get_data_generators
 
 # Load model
 model = tf.keras.models.load_model('models/whale_model.h5')

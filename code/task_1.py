@@ -28,6 +28,7 @@ def evaluate_model():
     print(f"Validation Accuracy: {accuracy:.2f}")
     print(f"Validation Loss: {loss:.2f}")
 
+
 #Uncomment the line below to run evaluation
 evaluate_model()
 

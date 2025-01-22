@@ -8,17 +8,29 @@ XVIEW3_IMAGES_DIR = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/t
 XVIEW3_LABELS_CSV = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/task-2/xview3_labels/train.csv"
 YOLO_LABELS_DIR = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/task-2/yolo_labels"
 
-def convert_csv_to_yolo(csv_path, images_dir, yolo_labels_dir):
+# List of specific IDs to process
+specific_ids = ["05bc615a9b0e1159t", "72dba3e82f782f67t", "590dd08f71056cacv", "2899cfb18883251bt", "b1844cde847a3942v",
+                "cbe4ad26fe73f118t","e98ca5aba8849b06t"]  # Add the specific IDs you want to process
+
+def convert_csv_to_yolo(csv_path, images_dir, yolo_labels_dir, specific_ids):
     os.makedirs(yolo_labels_dir, exist_ok=True)
 
     # Read CSV file
     annotations = pd.read_csv(csv_path)
 
+# conditions for only filter id's, bceasue of small dataset
+
+    # Filter annotations based on specific_ids
+    filtered_annotations = annotations[annotations["scene_id"].isin(specific_ids)]
+
     # Group by scene_id
-    grouped = annotations.groupby("scene_id")
+    grouped = filtered_annotations.groupby("scene_id")
+
+    #to run all the data in csv file
+    #grouped= annotations.groupby("scene_id")
 
     # Initialize counters for metrics
-    total_annotations = len(annotations)
+    total_annotations = len(filtered_annotations)
     successful_conversions = 0
     failed_conversions = 0
     missing_scene_dirs = 0
@@ -93,5 +105,5 @@ def convert_csv_to_yolo(csv_path, images_dir, yolo_labels_dir):
     print(f"Missing Images: {missing_images}")
     print(f"Accuracy: {accuracy:.2f}%")
 
-# Call the function for training annotations
-convert_csv_to_yolo(XVIEW3_LABELS_CSV, XVIEW3_IMAGES_DIR, YOLO_LABELS_DIR)
+# Call the function for specific IDs
+convert_csv_to_yolo(XVIEW3_LABELS_CSV, XVIEW3_IMAGES_DIR, YOLO_LABELS_DIR, specific_ids)

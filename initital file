@@ -2,3 +2,10 @@ project whaqle, starting file
 pip install rasterio
 pip install pandas
 dwonlaod xview3 dataset for task2
+
+pip install tensorflow
+pip install tensorflow-hub
+pip install tensorflow-addons
+
+pip install scipy
+pip install pillow

@@ -20,7 +20,7 @@ train_model(train_generator, validation_generator)  # Train the model using the 
 # -----------------------------------------------------------
 def evaluate_model():
     # Load the trained model
-    model = load_model('models/whale_model.h5')
+    model = load_model('output/task-1/whale_model.h5')
     # model = tf.keras.models.load_model('models/whale_model.h5')
 
     # Evaluate the model

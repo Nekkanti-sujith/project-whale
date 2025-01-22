@@ -5,8 +5,8 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropou
 from tensorflow.keras.optimizers import Adam
 
 # Define paths to training and validation directories
-train_dir = "Dataset/task-1/data/train"
-validation_dir = "Dataset/task-1/data/validation"
+train_dir = "Dataset/task-1/data/train/"
+validation_dir = "Dataset/task-1/data/validation/"
 
 # Image data preprocessing
 train_datagen = ImageDataGenerator(
@@ -71,7 +71,7 @@ def train_model(train_generator, validation_generator, epochs=20):
     )
 
     # Save the model
-    model.save('whale_model.h5')
+    model.save('output/task-1/whale_model.h5')
     print("Model saved as 'whale_model.h5'")
 
 # Start training

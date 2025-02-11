@@ -9,3 +9,7 @@ pip install tensorflow-addons
 
 pip install scipy
 pip install pillow
+
+
+Dataset for task-1 is taken form NOAA
+Dataset for task-2 is taken from Xview3

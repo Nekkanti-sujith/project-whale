@@ -9,7 +9,7 @@ from tensorflow.keras.models import load_model
 train_dir = "Dataset/task-1/data/train"
 validation_dir = "Dataset/task-1/data/validation"
 
-# Get data generators
+
 train_generator, validation_generator = get_data_generators(train_dir, validation_dir)
 
 # Train the model
@@ -54,3 +54,5 @@ evaluate_model()
 # Uncomment the line below to run inference (replace 'path/to/test_image.jpg' with your image path)
 # result = predict_image('path/to/test_image.jpg')
 # print(result)
+
+

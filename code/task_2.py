@@ -1,94 +1,59 @@
-import os
-import pandas as pd
-import rasterio
-from rasterio.transform import rowcol
-from PIL import Image
-import matplotlib.pyplot as plt
+import gradio as gr
+from transformers import DetrImageProcessor, DetrForObjectDetection
+from PIL import Image, ImageDraw
+import torch
 
-# Directories
-XVIEW3_IMAGES_DIR = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/task-2/extracted/"
-XVIEW3_LABELS_CSV = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/task-2/xview3_labels/train.csv"
+# Load the pre-trained DETR model
+model_name = "facebook/detr-resnet-50"
+processor = DetrImageProcessor.from_pretrained(model_name)
+model = DetrForObjectDetection.from_pretrained(model_name)
 
-# List of specific IDs to process
-specific_ids = ["05bc615a9b0e1159t", "72dba3e82f782f67t", "590dd08f71056cacv", "2899cfb18883251bt", "b1844cde847a3942v",
-                "cbe4ad26fe73f118t","e98ca5aba8849b06t"]  # Add the specific IDs you want to process
-# List of specific IDs to process
-specific_ids = ["05bc615a9b0e1159t", "72dba3e82f782f67t", "590dd08f71056cacv", "2899cfb18883251bt", "b1844cde847a3942v",
-                "cbe4ad26fe73f118t","e98ca5aba8849b06t"]  # Add the specific IDs you want to process
+# General categories of sea-based transportation (ship and boat)
+TRANSPORTATION_LABELS = [7, 9]  # [7: ship, 9: boat]
 
-def convert_csv_to_yolo(csv_path, images_dir, yolo_labels_dir, specific_ids):
-    os.makedirs(yolo_labels_dir, exist_ok=True)
-
-def compare_gps_and_detect_ships(csv_path, images_dir, specific_ids):
-    # Read CSV file
-    annotations = pd.read_csv(csv_path)
-
-    # Filter annotations based on specific_ids
-    filtered_annotations = annotations[annotations["scene_id"].isin(specific_ids)]
-
-    # Group by scene_id
-    grouped = filtered_annotations.groupby("scene_id")
-    grouped = filtered_annotations.groupby("scene_id")
-
-    #to run all the data in csv file
-    #grouped= annotations.groupby("scene_id")
-
-    # Initialize counters for metrics
-    total_annotations = len(filtered_annotations)
-    successful_conversions = 0
-    failed_conversions = 0
-    missing_scene_dirs = 0
-    missing_images = 0
-
-    for scene_id, group in grouped:
-        # Locate the directory for the scene_id
-        scene_dir = os.path.join(images_dir, scene_id)
-        if not os.path.isdir(scene_dir):
-            print(f"Warning: Directory for scene_id {scene_id} not found in {images_dir}.")
-            continue
-
-        # Look for the specific image file (e.g., '.jpg')
-        image_path = os.path.join(scene_dir, "image.jpg")  # Adjust file name if needed
-        if not os.path.isfile(image_path):
-            print(f"Warning: Image 'image.jpg' for scene_id {scene_id} not found in {scene_dir}.")
-            continue
-
-        # Open the image to read it
-        img = Image.open(image_path)
-        plt.imshow(img)
-        plt.title(f"Scene: {scene_id}")
+# Function to predict if the uploaded image contains any mode of sea transportation (ship, boat, etc.)
+def predict_transport_in_image(img: Image.Image):
+    try:
+        # Preprocess the image
+        inputs = processor(images=img, return_tensors="pt")
         
-        # Loop through the coordinates in the group
-        for _, row in group.iterrows():
-            lat, lon = row["detect_lat"], row["detect_lon"]
-            print(f"Checking coordinates: Lat {lat}, Lon {lon} for scene_id {scene_id}")
+        # Perform inference to detect objects
+        with torch.no_grad():
+            outputs = model(**inputs)
+        
+        # Get the predicted boxes and labels
+        target_sizes = torch.tensor([img.size[::-1]])  # Convert (width, height) to (height, width)
+        results = processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=0.5)[0]
+        
+        # Initialize ImageDraw object to draw bounding boxes
+        draw = ImageDraw.Draw(img)
+        found_transport = False
 
-            try:
-                # Georeference lat/lon to pixel coordinates
-                with rasterio.open(image_path) as src:
-                    transform = src.transform
-                    col, row = rowcol(transform, lon, lat)
-                
-                # Set a small threshold for the bounding box size
-                box_size = 10  # Example size for bounding box (you can adjust)
-                x_min = max(0, col - box_size)
-                y_min = max(0, row - box_size)
-                x_max = min(src.width, col + box_size)
-                y_max = min(src.height, row + box_size)
+        # Check if any sea-based transportation is detected and draw the bounding box
+        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+            if label in TRANSPORTATION_LABELS:
+                found_transport = True
+                box = [round(i, 2) for i in box.tolist()]  # Round the coordinates for better readability
+                draw.rectangle(box, outline="red", width=3)  # Draw bounding box (red color)
+                # Add label to the box
+                draw.text((box[0], box[1]), "Ship/Boat", fill="red")
+        
+        # If relevant transportation is detected, return message and the image
+        if found_transport:
+            return img, "The image contains a ship, boat, etc!"  
+        else:
+            return img, "The image does not contain a ship, boat, etc."
+    
+    except Exception as e:
+        return img, f"Error: {str(e)}"
 
-                # If there's a ship, assume a simple logic: check if a ship exists within the box (e.g., using a bounding box)
-                if row["is_ship_present"] == 1:  # Assuming 'is_ship_present' column exists in your CSV
-                    print(f"Ship detected at coordinates Lat: {lat}, Lon: {lon} in {scene_id}.")
-                    
-                    # Draw a rectangle on the image to indicate ship's location
-                    plt.gca().add_patch(plt.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, linewidth=2, edgecolor="r", facecolor="none"))
-                    plt.text(x_min, y_min, "Ship", fontsize=12, color='red')
+# Create Gradio interface
+interface = gr.Interface(
+    fn=predict_transport_in_image,  # Function to run on image input
+    inputs=gr.Image(type="pil"),  # Input: Image upload
+    outputs=["image", "text"],  # Output: Image with bounding box and text message
+    live=True,  # Optional: enable live feedback
+)
 
-            except Exception as e:
-                print(f"Error processing coordinates for {row} -> {e}")
-                
-        # Show the image with ship annotations
-        plt.show()
-
-# Call the function for specific IDs
-compare_gps_and_detect_ships(XVIEW3_LABELS_CSV, XVIEW3_IMAGES_DIR, specific_ids)
+# Launch the Gradio interface
+interface.launch()

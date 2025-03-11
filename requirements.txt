@@ -1,19 +1,17 @@
-# Basic dependencies for the project
-tensorflow
-tensorflow-hub
-tensorflow-addons
-scipy
-pillow
-rasterio
-pandas
+# Use an official Python runtime as a base image
+FROM python:3.9
 
-# Huggingface and transformers for DETR
-torch
-transformers
+# Set the working directory in the container
+WORKDIR /app
 
-# For Gradio interface
-gradio
+# Copy the application files into the container
+COPY . .
 
-# Other dependencies for your project
-requests
-numpy
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the port for Gradio
+EXPOSE 8080
+
+# Run your Gradio app
+CMD ["python", "final_interface.py"]

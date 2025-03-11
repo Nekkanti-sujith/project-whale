@@ -3,6 +3,9 @@ import gradio as gr
 from task_2 import inference  # Ship Detection
 from task_1_final import predict_image  # Whale Detection
 
+import os
+port = os.getenv('PORT', 8080)
+
 # Function to reveal image uploader and hide button
 def show_uploader():
     return gr.update(visible=False), gr.update(visible=True)
@@ -57,5 +60,5 @@ with gr.Blocks() as demo:
     submit_button.click(fn=submit_location, inputs=location_input, outputs=[thank_you_text, location_input, submit_button, thank_you_text])
     
 # Launch
-demo.launch(server_name="0.0.0.0",server_port=8080)
+demo.launch(server_name="0.0.0.0",server_port=port)
 

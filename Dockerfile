@@ -1,17 +1,20 @@
-# Use Python 3.9 as the base image
-FROM python:3.9.6
+# Use an official Python image
+FROM python:3.9-slim
 
-# Set the working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . /app
+# Copy the requirements file
+COPY requirements.txt .
 
-# Install dependencies
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port (Cloud Run uses 8080)
+# Copy the rest of your application code
+COPY . .
+
+# Expose the port for the application (you might not need this if you're not using any web server)
 EXPOSE 8080
 
-# Command to run the application
-CMD ["python", "code/main.py"] 
+# Run the application (assuming your main.py contains the code to execute)
+CMD ["python", "main.py"]

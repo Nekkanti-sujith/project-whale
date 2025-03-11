@@ -1,5 +1,8 @@
 import gradio as gr
 
+import sys
+sys.path.append('./code') 
+
 from task_2 import inference  # Ship Detection
 from task_1_final import predict_image  # Whale Detection
 

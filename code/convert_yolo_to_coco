@@ -1,0 +1,93 @@
+import os
+import json
+from PIL import Image
+
+# Paths to your dataset
+images_path = "/Users/sujith/Desktop/project-whale/project-whale/Dataset/task-1/data/train/no_whale"  # Path to the images
+labels_path = "labels/labels"  # Path to the YOLO label files (adjust accordingly)
+output_json = "/Users/sujith/Desktop/project-whale/project-whale/output/task-2/annotations_coco.json"  # Path to save the COCO annotation JSON
+
+# Class mapping (you can update if you have multiple classes)
+categories = [{"id": 1, "name": "ship"}]  # Update with your class names and ids
+
+# Initialize the COCO data structure
+coco_data = {
+    "images": [],
+    "annotations": [],
+    "categories": categories
+}
+
+# Annotation ID starts from 1
+annotation_id = 1
+
+# Loop through each label file in the specified labels directory
+for label_file in os.listdir(labels_path):
+    # Only process .txt files (YOLO format label files)
+    if not label_file.endswith(".txt"):
+        continue
+
+    # Replace .txt with .jpg to get the corresponding image filename
+    image_file = label_file.replace(".txt", ".jpg")  # Adjust for PNG if needed
+    image_path = os.path.join(images_path, image_file)
+
+    # Check if the image exists, skip if not found
+    if not os.path.exists(image_path):
+        print(f"Image {image_file} not found, skipping...")
+        continue
+
+    # Get image dimensions (width and height)
+    with Image.open(image_path) as img:
+        width, height = img.size
+
+    # Add image entry to COCO format
+    image_id = len(coco_data["images"]) + 1  # Image ID will be incremented automatically
+    coco_data["images"].append({
+        "id": image_id,
+        "file_name": image_file,
+        "width": width,
+        "height": height
+    })
+
+    # Read the YOLO label file
+    with open(os.path.join(labels_path, label_file), "r") as f:
+        lines = f.readlines()
+
+    # Process each line in the YOLO label file
+    for line in lines:
+        parts = line.strip().split()
+
+        # Skip empty lines or lines that don't have the expected number of values
+        if len(parts) != 5:
+            print(f"Skipping invalid line in {label_file}: {line.strip()}")
+            continue
+
+        try:
+            # YOLO format: class_id, x_center, y_center, box_width, box_height
+            class_id = int(parts[0])  # Class ID from YOLO
+            x_center, y_center, box_width, box_height = map(float, parts[1:])
+
+            # Convert YOLO bbox format (center x, center y, width, height) to COCO format (x_min, y_min, width, height)
+            x_min = (x_center - box_width / 2) * width
+            y_min = (y_center - box_height / 2) * height
+            box_width *= width  # Scale the width
+            box_height *= height  # Scale the height
+
+            # Append annotation to the COCO annotations list
+            coco_data["annotations"].append({
+                "id": annotation_id,
+                "image_id": image_id,
+                "category_id": class_id + 1,  # COCO category IDs start from 1, YOLO uses 0-based indexing
+                "bbox": [x_min, y_min, box_width, box_height],
+                "area": box_width * box_height,  # Area of the bounding box
+                "iscrowd": 0  # This indicates whether the annotation is for a crowd (set to 0 for individual objects)
+            })
+            annotation_id += 1  # Increment annotation ID for each new annotation
+
+        except ValueError as e:
+            print(f"Error processing line in {label_file}: {line.strip()}. Error: {str(e)}")
+
+# Save the COCO annotations to a JSON file
+with open(output_json, "w") as json_file:
+    json.dump(coco_data, json_file, indent=4)
+
+print(f"COCO annotations saved to {output_json}")

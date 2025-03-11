@@ -1,0 +1,19 @@
+# Basic dependencies for the project
+tensorflow
+tensorflow-hub
+tensorflow-addons
+scipy
+pillow
+rasterio
+pandas
+
+# Huggingface and transformers for DETR
+torch
+transformers
+
+# For Gradio interface
+gradio
+
+# Other dependencies for your project
+requests
+numpy

@@ -57,5 +57,5 @@ with gr.Blocks() as demo:
     submit_button.click(fn=submit_location, inputs=location_input, outputs=[thank_you_text, location_input, submit_button, thank_you_text])
     
 # Launch
-demo.launch(server_name="0.0.0.0")
+demo.launch(server_name="0.0.0.0",server_port=8080)
 

@@ -38,7 +38,7 @@ import numpy as np
 # -----------------------------------------------------------
 def predict_image(img_path):
     # Load the trained model
-    model = tf.keras.models.load_model('/Users/sujith/Desktop/project-whale/project-whale/output/task-1/custom_whale_model.keras')
+    model = tf.keras.models.load_model('output/task-1/custom_whale_model.keras')
 
     # Load and preprocess image
     img = image.load_img(img_path, target_size=(150, 150))
@@ -60,8 +60,8 @@ def predict_image(img_path):
 # Gradio Interface
 # -----------------------------------------------------------
 # Commented out for now since we are focusing on user input
-iface = gr.Interface(
-    fn=predict_image,  # The function to handle the prediction
-    inputs=gr.Image(type="pil"),  # Updated for Gradio v3.x
-    outputs="text",  # Output will be a text response
-)
+# iface = gr.Interface(
+#     fn=predict_image,  # The function to handle the prediction
+#     inputs=gr.Image(type="pil"),  # Updated for Gradio v3.x
+#     outputs="text",  # Output will be a text response
+# )

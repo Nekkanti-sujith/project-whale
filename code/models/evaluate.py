@@ -1,4 +1,4 @@
-import tensorflow as tf
+""" import tensorflow as tf
 from preProcess import get_data_generators
 
 # Load model
@@ -14,4 +14,4 @@ _, validation_generator = get_data_generators(train_dir, validation_dir)
 # Evaluate the model
 loss, accuracy = model.evaluate(validation_generator)
 print(f"Validation Accuracy: {accuracy:.2f}")
-print(f"Validation Loss: {loss:.2f}")
+print(f"Validation Loss: {loss:.2f}")  """

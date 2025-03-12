@@ -64,7 +64,7 @@ def main():
         submit_button.click(fn=submit_location, inputs=location_input, outputs=[thank_you_text, location_input, submit_button, thank_you_text])
         
     # Launch the Gradio app
-    demo.launch(server_name="0.0.0.0", server_port=port)
+    demo.launch(share=True,server_name="0.0.0.0", server_port=port)
 
 # Entry point to call main
 if __name__ == "__main__":

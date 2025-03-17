@@ -2,7 +2,10 @@ import gradio as gr
 import sys
 import os
 
-sys.path.append('./code')  # Add task directories to the path
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent / 'code'))
+ # Add task directories to the path
 from task_2 import inference  # Ship Detection
 from task_1_final import predict_image  # Whale Detection
 

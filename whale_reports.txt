@@ -7,3 +7,8 @@ Reported Whale Location: 1.5,7.0
 Reported Whale Location: 1.7,8.9
 Reported Whale Location: 1.1,2.21
 Reported Whale Location: 3.3,4,.5
+Reported Whale Location: 14.5994° S, 28.6731° W
+Reported Whale Location: 1.4,6.5
+Reported Whale Location: 1.1,4.3
+Reported Whale Location: 1.2,4,5
+Reported Whale Location: 1.2,3.4
